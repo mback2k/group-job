@@ -26,7 +26,7 @@ LPWSTR SkipToArg( LPWSTR args, LPWSTR arg )
 	return NULL;
 }
 
-void _tmain( int argc, TCHAR *argv[] )
+int _tmain( int argc, TCHAR *argv[] )
 {
 	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jiJobInfo;
 	PROCESS_INFORMATION piProcInfo; 
@@ -38,7 +38,7 @@ void _tmain( int argc, TCHAR *argv[] )
 	// Check the arguments.
 	if (argc < 2) {
 		fprintf(stderr, "Usage: group-job <command> <arguments...>\n");
-		return;
+		return -1;
 	}
 
 	// Get the current process.
@@ -47,15 +47,17 @@ void _tmain( int argc, TCHAR *argv[] )
 	// Parse the commandline.
 	sCommandLine = GetCommandLine();
 	if (!sCommandLine) {
-		fprintf(stderr, "GetCommandLine failed (%d).\n", GetLastError());
-		return;
+		lpExitCode = GetLastError();
+		fprintf(stderr, "GetCommandLine failed (%d).\n", lpExitCode);
+		return lpExitCode;
 	}
 
 	// Skip the module name in the commandline.
 	sCommandLine = SkipToArg(sCommandLine, argv[1]);
 	if (!sCommandLine) {
-		fprintf(stderr, "SkipToArg failed (%d).\n", GetLastError());
-		return;
+		lpExitCode = GetLastError();
+		fprintf(stderr, "SkipToArg failed (%d).\n", lpExitCode);
+		return lpExitCode;
 	}
 
 	// Setup the child process.
@@ -66,14 +68,16 @@ void _tmain( int argc, TCHAR *argv[] )
 	// Setup the job object.
 	hJob = CreateJobObject(NULL, NULL);
 	if (!hJob) {
-		fprintf(stderr, "CreateJobObject failed (%d).\n", GetLastError());
-		return;
+		lpExitCode = GetLastError();
+		fprintf(stderr, "CreateJobObject failed (%d).\n", lpExitCode);
+		return lpExitCode;
 	}
 
 	// Assign this process to the job object.
 	if (!AssignProcessToJobObject(hJob, hProcess)) {
-		fprintf(stderr, "AssignProcessToJobObject failed (%d).\n", GetLastError());
-		return;
+		lpExitCode = GetLastError();
+		fprintf(stderr, "AssignProcessToJobObject failed (%d).\n", lpExitCode);
+		return lpExitCode;
 	}
 
 	// Update the job object.
@@ -83,8 +87,9 @@ void _tmain( int argc, TCHAR *argv[] )
 	if (!SetInformationJobObject(hJob, JobObjectExtendedLimitInformation,
 		&jiJobInfo, sizeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION))
 	) {
-		fprintf(stderr, "SetInformationJobObject failed (%d).\n", GetLastError());
-		return;
+		lpExitCode = GetLastError();
+		fprintf(stderr, "SetInformationJobObject failed (%d).\n", lpExitCode);
+		return lpExitCode;
 	}
 
 	// Start the child process. 
@@ -99,8 +104,9 @@ void _tmain( int argc, TCHAR *argv[] )
 		&siStartInfo,   // Pointer to STARTUPINFO structure
 		&piProcInfo)    // Pointer to PROCESS_INFORMATION structure
 	) {
-		fprintf(stderr, "CreateProcess failed (%d).\n", GetLastError());
-		return;
+		lpExitCode = GetLastError();
+		fprintf(stderr, "CreateProcess failed (%d).\n", lpExitCode);
+		return lpExitCode;
 	}
 
 	// Wait until child process exits.
@@ -108,8 +114,9 @@ void _tmain( int argc, TCHAR *argv[] )
 
 	// Get the exit code of child process.
 	if (!GetExitCodeProcess(piProcInfo.hProcess, &lpExitCode)) {
-		fprintf(stderr, "GetExitCodeProcess failed (%d).\n", GetLastError());
-		return;
+		lpExitCode = GetLastError();
+		fprintf(stderr, "GetExitCodeProcess failed (%d).\n", lpExitCode);
+		return lpExitCode;
 	}
 
 	// Close process and thread handles. 
@@ -119,6 +126,6 @@ void _tmain( int argc, TCHAR *argv[] )
 	// Close job handle.
 	CloseHandle(hJob);
 
-	// Exit this process.
-	ExitProcess(lpExitCode);
+	// Return child process exit code.
+	return lpExitCode;
 }
