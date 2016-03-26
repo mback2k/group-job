@@ -8,15 +8,15 @@ LPWSTR SkipToArg( LPWSTR args, LPWSTR arg )
 	LPWSTR *argv;
 	int argc;
 
-	for (int i = 1; arg && args[i]; i++) {
+	for (int i = 1; arg && args && args[i]; i++) {
 		if (args[i-1] == L' ' || args[i-1] == L'\t') {
 			argv = CommandLineToArgvW( &args[i], &argc );
 			if (argv) {
 				if (argc > 0 && wcscmp(arg, argv[0]) == 0) {
-					arg = NULL;
+					argc = 0;
 				}
 				LocalFree(argv);
-				if (!arg) {
+				if (argc == 0) {
 					return &args[i];
 				}
 			}
