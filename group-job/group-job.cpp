@@ -37,7 +37,7 @@ void _tmain( int argc, TCHAR *argv[] )
 
 	// Check the arguments.
 	if (argc < 2) {
-		fprintf( stderr, "Usage: group-job <command> <arguments...>\n" );
+		fprintf(stderr, "Usage: group-job <command> <arguments...>\n");
 		return;
 	}
 
@@ -46,48 +46,49 @@ void _tmain( int argc, TCHAR *argv[] )
 
 	// Parse the commandline.
 	sCommandLine = GetCommandLine();
-	if( !sCommandLine ) {
-		fprintf( stderr, "GetCommandLine failed (%d).\n", GetLastError() );
+	if (!sCommandLine) {
+		fprintf(stderr, "GetCommandLine failed (%d).\n", GetLastError());
 		return;
 	}
 
 	// Skip the module name in the commandline.
-	sCommandLine = SkipToArg( sCommandLine, argv[1] );
-	if( !sCommandLine ) {
-		fprintf( stderr, "SkipToArg failed (%d).\n", GetLastError() );
+	sCommandLine = SkipToArg(sCommandLine, argv[1]);
+	if (!sCommandLine) {
+		fprintf(stderr, "SkipToArg failed (%d).\n", GetLastError());
 		return;
 	}
 
 	// Setup the child process.
-	ZeroMemory( &piProcInfo, sizeof(PROCESS_INFORMATION) );
-	ZeroMemory( &siStartInfo, sizeof(STARTUPINFO) );
+	ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+	ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
 	siStartInfo.cb = sizeof(STARTUPINFO);
 
 	// Setup the job object.
-	hJob = CreateJobObject( NULL, NULL );
-	if( !hJob ) {
-		fprintf( stderr, "CreateJobObject failed (%d).\n", GetLastError() );
+	hJob = CreateJobObject(NULL, NULL);
+	if (!hJob) {
+		fprintf(stderr, "CreateJobObject failed (%d).\n", GetLastError());
 		return;
 	}
 
 	// Assign this process to the job object.
-	if( !AssignProcessToJobObject( hJob, hProcess ) ) {
-		fprintf( stderr, "AssignProcessToJobObject failed (%d).\n", GetLastError() );
+	if (!AssignProcessToJobObject(hJob, hProcess)) {
+		fprintf(stderr, "AssignProcessToJobObject failed (%d).\n", GetLastError());
 		return;
 	}
 
 	// Update the job object.
-	ZeroMemory( &jiJobInfo, sizeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION) );
+	ZeroMemory(&jiJobInfo, sizeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION));
 	jiJobInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 
-	if( !SetInformationJobObject( hJob, JobObjectExtendedLimitInformation,
-		&jiJobInfo, sizeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION) ) ) {
-		fprintf( stderr, "SetInformationJobObject failed (%d).\n", GetLastError() );
+	if (!SetInformationJobObject(hJob, JobObjectExtendedLimitInformation,
+		&jiJobInfo, sizeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION))
+	) {
+		fprintf(stderr, "SetInformationJobObject failed (%d).\n", GetLastError());
 		return;
 	}
 
 	// Start the child process. 
-	if( !CreateProcess( NULL,   // No module name (use command line)
+	if (!CreateProcess(NULL,   // No module name (use command line)
 		sCommandLine,   // Command line
 		NULL,           // Process handle not inheritable
 		NULL,           // Thread handle not inheritable
@@ -96,27 +97,27 @@ void _tmain( int argc, TCHAR *argv[] )
 		NULL,           // Use parent's environment block
 		NULL,           // Use parent's starting directory 
 		&siStartInfo,   // Pointer to STARTUPINFO structure
-		&piProcInfo )   // Pointer to PROCESS_INFORMATION structure
+		&piProcInfo)    // Pointer to PROCESS_INFORMATION structure
 	) {
-		fprintf( stderr, "CreateProcess failed (%d).\n", GetLastError() );
+		fprintf(stderr, "CreateProcess failed (%d).\n", GetLastError());
 		return;
 	}
 
 	// Wait until child process exits.
-	WaitForSingleObject( piProcInfo.hProcess, INFINITE );
+	WaitForSingleObject(piProcInfo.hProcess, INFINITE);
 
 	// Get the exit code of child process.
-	if( !GetExitCodeProcess( piProcInfo.hProcess, &lpExitCode ) ) {
-		fprintf( stderr, "GetExitCodeProcess failed (%d).\n", GetLastError() );
+	if (!GetExitCodeProcess(piProcInfo.hProcess, &lpExitCode)) {
+		fprintf(stderr, "GetExitCodeProcess failed (%d).\n", GetLastError());
 		return;
 	}
 
 	// Close process and thread handles. 
-	CloseHandle( piProcInfo.hProcess );
-	CloseHandle( piProcInfo.hThread );
+	CloseHandle(piProcInfo.hProcess);
+	CloseHandle(piProcInfo.hThread);
 
 	// Close job handle.
-	CloseHandle( hJob );
+	CloseHandle(hJob);
 
 	// Exit this process.
 	ExitProcess(lpExitCode);
