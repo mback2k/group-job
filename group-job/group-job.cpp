@@ -123,9 +123,6 @@ int _tmain( int argc, TCHAR *argv[] )
 	CloseHandle(piProcInfo.hProcess);
 	CloseHandle(piProcInfo.hThread);
 
-	// Close job handle.
-	CloseHandle(hJob);
-
 	// Return child process exit code.
 	return lpExitCode;
 }
