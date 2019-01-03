@@ -10,3 +10,21 @@ platform:
 
 build:
   verbosity: detailed
+
+artifacts:
+  - path: Release\group-job.exe
+    name: group-job-x86.exe
+  - path: x64\Release\group-job.exe
+    name: group-job-x64.exe
+
+deploy:
+  description: Automatic release build of group-job
+  provider: GitHub
+  auth_token:
+    secure: OhF/LMryRiZqCO7NHLqSZcZB1I0Jx19K9OMSmItPvPgv0GwsyhMdSgjk1REkwjmR
+  artifact: group-job-x86.exe,group-job-x64.exe
+  draft: false
+  prerelease: false
+  on:
+    branch: master
+    APPVEYOR_REPO_TAG: true
