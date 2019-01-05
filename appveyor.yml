@@ -18,14 +18,14 @@ after_build:
 
 artifacts:
   - path: group-job\$(configuration)\group-job-$(platform).exe
-    name: group-job-$(platform).exe
+    name: $(configuration)\group-job-$(platform).exe
 
 deploy:
   description: Automatic release build of group-job
   provider: GitHub
   auth_token:
     secure: OhF/LMryRiZqCO7NHLqSZcZB1I0Jx19K9OMSmItPvPgv0GwsyhMdSgjk1REkwjmR
-  artifact: group-job-Win32.exe,group-job-x64.exe
+  artifact: Release\group-job-Win32.exe,Release\group-job-x64.exe
   draft: false
   prerelease: false
   on:
