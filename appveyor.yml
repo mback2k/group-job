@@ -11,16 +11,21 @@ platform:
 build:
   verbosity: detailed
 
+after_build:
+  - ps: |
+      Copy-Item -Path "group-job\$(env:CONFIGURATION)\$(env:PLATFORM)\group-job.exe" \
+                -Destination "group-job\$(env:CONFIGURATION)\group-job-$(env:PLATFORM).exe"
+
 artifacts:
-  - path: group-job\$(configuration)\$(platform)\group-job.exe
-    name: group-job.exe
+  - path: group-job\$(configuration)\group-job-$(platform).exe
+    name: group-job-$(platform).exe
 
 deploy:
   description: Automatic release build of group-job
   provider: GitHub
   auth_token:
     secure: OhF/LMryRiZqCO7NHLqSZcZB1I0Jx19K9OMSmItPvPgv0GwsyhMdSgjk1REkwjmR
-  artifact: group-job-x86.exe,group-job-x64.exe
+  artifact: group-job-Win32.exe,group-job-x64.exe
   draft: false
   prerelease: false
   on:
