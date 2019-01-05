@@ -12,10 +12,8 @@ build:
   verbosity: detailed
 
 artifacts:
-  - path: Release\Win32\group-job.exe
-    name: group-job-x86.exe
-  - path: Release\x64\group-job.exe
-    name: group-job-x64.exe
+  - path: group-job\$(configuration)\$(platform)\group-job.exe
+    name: group-job.exe
 
 deploy:
   description: Automatic release build of group-job
