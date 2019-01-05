@@ -12,9 +12,9 @@ build:
   verbosity: detailed
 
 artifacts:
-  - path: Release\group-job.exe
+  - path: Release\Win32\group-job.exe
     name: group-job-x86.exe
-  - path: x64\Release\group-job.exe
+  - path: Release\x64\group-job.exe
     name: group-job-x64.exe
 
 deploy:
