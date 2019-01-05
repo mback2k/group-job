@@ -13,8 +13,8 @@ build:
 
 after_build:
   - ps: |
-      Copy-Item -Path "group-job\$(env:CONFIGURATION)\$(env:PLATFORM)\group-job.exe" \
-                -Destination "group-job\$(env:CONFIGURATION)\group-job-$(env:PLATFORM).exe"
+      Copy-Item -Path "group-job\$env:CONFIGURATION\$env:PLATFORM\group-job.exe" `
+                -Destination "group-job\$env:CONFIGURATION\group-job-$env:PLATFORM.exe"
 
 artifacts:
   - path: group-job\$(configuration)\group-job-$(platform).exe
